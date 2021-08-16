@@ -32,7 +32,7 @@ yArrayA=[]
 xArrayB=[]
 yArrayB=[]
 
-intervalms = 20 # this means 20 ms per frame
+intervalms = 20  # this means 20 ms per frame
 numframes = 300
 duration = intervalms*numframes/1000.0 # sec
 
