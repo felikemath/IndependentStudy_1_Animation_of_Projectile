@@ -7,7 +7,7 @@ import math
 x0 = 0.0
 y0 = 0.0
 v0 = 20  # m/s
-theta0 = 30  # initial throwing angle in degrees
+theta0 = 30  # initial launching angle in degrees
 k = 0.1  # linear drag force coefficient of air resistance
 
 # gravity constant g
@@ -19,35 +19,33 @@ sin_theta = math.sin(theta0 * math.pi / 180.0)
 vx0 = v0 * cos_theta
 vy0 = v0 * sin_theta
 
+# A: without air resistance; B: with air resistance
 prev_xA = 0
 prev_yA = 0
+prev_distA = 0
 prev_xB = 0
 prev_yB = 0
-prev_distA = 0
 prev_distB = 0
 
-xArrayA=[]
-yArrayA=[]
-
-xArrayB=[]
-yArrayB=[]
+xArrayA = []
+xArrayB = []
+yArrayA = []
+yArrayB = []
 
 intervalms = 20  # this means 20 ms per frame
 numframes = 300
-duration = intervalms*numframes/1000.0 # sec
+duration = intervalms*numframes/1000.0  # sec
 
 # calculate the highest vertical point & lowest vertical points during the duration of (numframes * intervalms)
 highestpoint = vy0*vy0/(2.0*g)+y0
-lowestpoint = vy0 *duration - 0.5*g*duration*duration+y0
-if lowestpoint>y0:
+lowestpoint = vy0 * duration - 0.5*g*duration*duration+y0
+if lowestpoint > y0:
     lowestpoint = y0
-scale_arrow = (highestpoint-lowestpoint) / v0 *0.1
+scale_arrow = (highestpoint-lowestpoint) / v0 * 0.1
 x_range = vx0*duration
 y_range = highestpoint+5 - lowestpoint
 if y_range > x_range:
     x_range = y_range
-
-
 
 # Set up the figure, axis, and the plot elements to animate
 fig = plt.figure(figsize=(8, 8))
@@ -69,6 +67,7 @@ lineB, = ax.plot([], [], '--m', lw=1, label='w/ air resistance')
 dotA, = ax.plot([], [], 'ob', lw=0.4)
 lineA, = ax.plot([], [], '--b', lw=1, label='w/o air resistance')
 
+# The following lines help find appropriate empty locations to display the annotations
 if theta0 >= 60:
     x_display_loc = 0.5
     y_display_loc = 0.8
@@ -142,17 +141,21 @@ def init():
 def animate(i):
     global prev_distA, prev_distB, prev_xA, prev_yA, prev_xB, prev_yB
 
+    # time sampling
     t = i * intervalms / 1000.0
+
+    # A: without air resistance
     xA = x0 + vx0 * t
     yA = y0 + vy0 * t - (g*t*t)/2.0
     vxA = vx0
     vyA = vy0 - g*t
     vA = math.sqrt(vxA * vxA + vyA * vyA)
 
-    xB = x0 + vx0 * (1 - math.exp(-k*t)) / k
-    yB = y0 + vy0 * (1 - math.exp(-k*t)) / k + g * (1 - k*t - math.exp(-k*t))/(k*k)
-    vxB = vx0 - k * xB
-    vyB = vy0 * math.exp(-k*t) - g * (1 - math.exp(-k*t))/k
+    # B: with air resistance
+    xB = x0 + vx0 * (1 - math.exp(-k*t/m)) * m / k
+    yB = y0 + vy0 * (1 - math.exp(-k*t/m)) * m / k + g * (1 - k*t/m - math.exp(-k*t/m)) * (m*m)/(k*k)
+    vxB = vx0 * math.exp(-k*t/m)
+    vyB = vy0 * math.exp(-k*t/m) - g * (1 - math.exp(-k*t/m)) * m/k
     vB = math.sqrt(vxB * vxB + vyB * vyB)
 
     xArrayA.append(xA)
